@@ -1,0 +1,362 @@
+.voice-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.voice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.voice-header h1 {
+  font-size: 24px;
+  color: #333;
+  margin: 0;
+}
+
+.status-indicator {
+  background-color: #f0f0f0;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.status-text {
+  font-weight: 600;
+}
+
+.status-text.idle {
+  color: #888;
+}
+
+.status-text.listening {
+  color: #2196f3;
+}
+
+.status-text.processing {
+  color: #ff9800;
+}
+
+.status-text.speaking {
+  color: #4caf50;
+}
+
+.avatar-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23666"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-9.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5zm5 0c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5zm-4.5 4c.76 1.77 2.94 2.65 4.7 1.89.92-.4 1.66-1.14 2.05-2.06.1-.24-.04-.52-.29-.52h-6.11c-.25.01-.4.29-.29.53l-.06.16z"/></svg>');
+  background-size: 60%;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.avatar.listening {
+  background-color: #e3f2fd;
+  border: 2px solid #2196f3;
+}
+
+.avatar.processing {
+  background-color: #fff3e0;
+  border: 2px solid #ff9800;
+}
+
+.avatar.speaking {
+  background-color: #e8f5e9;
+  border: 2px solid #4caf50;
+}
+
+/* Listening animation */
+.wave-animation {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 45%, #2196f3 45%);
+  opacity: 0.3;
+  animation: pulse 1.5s infinite;
+}
+
+/* Processing animation */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 152, 0, 0.3);
+  border-radius: 50%;
+  border-top-color: #ff9800;
+  animation: spin 1s linear infinite;
+}
+
+/* Speaking animation */
+.sound-wave {
+  width: 60px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sound-wave:before, .sound-wave:after {
+  content: "";
+  width: 3px;
+  height: 100%;
+  background-color: #4caf50;
+  animation: soundWave 0.5s infinite alternate;
+}
+
+.sound-wave:after {
+  animation-delay: 0.25s;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes soundWave {
+  0% {
+    height: 10%;
+  }
+  100% {
+    height: 100%;
+  }
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.auto-mode-button {
+  padding: 12px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #6200ee;
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.auto-mode-button:hover {
+  background-color: #3700b3;
+}
+
+.auto-mode-button.active {
+  background-color: #018786;
+}
+
+.auto-mode-button.active:hover {
+  background-color: #015a59;
+}
+
+.manual-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.manual-controls button {
+  flex: 1;
+  min-width: 120px;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.start-button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.start-button:hover:not(:disabled) {
+  background-color: #388e3c;
+}
+
+.stop-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.stop-button:hover:not(:disabled) {
+  background-color: #d32f2f;
+}
+
+.submit-button {
+  background-color: #2196f3;
+  color: white;
+}
+
+.submit-button:hover:not(:disabled) {
+  background-color: #1976d2;
+}
+
+.reset-button {
+  background-color: #9e9e9e;
+  color: white;
+}
+
+.reset-button:hover:not(:disabled) {
+  background-color: #757575;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.transcript-box {
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  min-height: 60px;
+  border: 1px solid #e0e0e0;
+}
+
+.transcript-box p {
+  margin: 0;
+  color: #333;
+}
+
+.error-message {
+  color: #f44336;
+  padding: 10px;
+  margin-bottom: 15px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  border-left: 4px solid #f44336;
+}
+
+.conversation-container {
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.conversation-history {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.message {
+  display: flex;
+  margin-bottom: 15px;
+  max-width: 80%;
+}
+
+.message.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.message.assistant {
+  align-self: flex-start;
+}
+
+.message-avatar {
+  min-width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  margin: 0 10px;
+}
+
+.message.user .message-avatar {
+  background-color: #673ab7;
+}
+
+.message.assistant .message-avatar {
+  background-color: #2196f3;
+}
+
+.message-content {
+  padding: 12px 16px;
+  border-radius: 18px;
+  max-width: calc(100% - 60px);
+  word-break: break-word;
+}
+
+.message.user .message-content {
+  background-color: #e8eaf6;
+  border-top-right-radius: 4px;
+}
+
+.message.assistant .message-content {
+  background-color: #e3f2fd;
+  border-top-left-radius: 4px;
+}
+
+.empty-conversation {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  color: #9e9e9e;
+  text-align: center;
+  padding: 0 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .manual-controls {
+    flex-direction: column;
+  }
+  
+  .message {
+    max-width: 90%;
+  }
+}
