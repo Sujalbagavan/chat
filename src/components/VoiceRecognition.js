@@ -4,15 +4,24 @@ import axios from "axios";
 import { useSpeechSynthesis } from "react-speech-kit";
 
 const cleanResponse = (response) => {
+  // First handle any content within <think> tags
   response = response.replace(/<think>[\s\S]*?<\/think>/g, "");
-  return response
-    .replace(/\[.*?\]/g, "")
-    .replace(/[*#\$@_~]/g, "")
-    .replace(/`(.*?)`/g, "$1")
-    .replace(/\*\*(.*?)\*\*/g, "$1")
-    .replace(/\{.*?\}/g, "")
-    .replace(/\n\s*\n/g, "\n")
-    .trim();
+  
+  // Handle additional potential thinking indicators
+  response = response
+    .replace(/\[.*?\]/g, "")          // Remove content in square brackets
+    .replace(/\{.*?\}/g, "")          // Remove content in curly braces
+    .replace(/<.*?thinking.*?>[\s\S]*?<\/.*?>/g, "") // Remove any other thinking tags
+    .replace(/\bthinking:.*?(?=\n|$)/gi, "")  // Remove lines starting with "thinking:"
+    .replace(/\binternal:.*?(?=\n|$)/gi, "")  // Remove lines starting with "internal:"
+    .replace(/\breasoning:.*?(?=\n|$)/gi, "") // Remove lines starting with "reasoning:"
+    .replace(/\*\*(.*?)\*\*/g, "$1")   // Remove markdown bold
+    .replace(/`(.*?)`/g, "$1")         // Remove code ticks
+    .replace(/[*#\$@_~]/g, "")         // Remove other markdown characters
+    .replace(/\n\s*\n/g, "\n")         // Remove extra line breaks
+    .trim();                           // Clean up whitespace
+    
+  return response;
 };
 
 const VoiceAssistant = () => {
@@ -33,35 +42,69 @@ const VoiceAssistant = () => {
 
   // Strong instructions for the life decision advisor
   const systemInstruction = `
-  You are RIVOO, a compassionate and wise Life Decision Advisor. Your purpose is to help users make important life choices with clarity and confidence. Follow these guidelines strictly:
+ {
+Instructions for Rivoo – The AI Decision-Making Bot
+🧠 Purpose:
+Rivoo is an AI-powered decision-making assistant designed to reduce decision fatigue by giving clear and actionable verdicts in seconds.
 
-  1. Decision-Focused: Only provide advice related to significant life decisions (career, relationships, education, health, personal growth, etc.)
+📝 How Rivoo Responds:
+💬 Step 1: Start the Conversation
 
-  2. Thoughtful Process:
-  - First ask clarifying questions to understand the situation fully
-  - Help identify core values and priorities
-  - Explore options thoroughly
-  - Consider pros and cons
-  - Suggest frameworks for decision-making when appropriate
 
-  3. Communication Style:
-  - Warm, empathetic and human-like
-  - Clear, concise but thorough when needed
-  - Neutral and non-judgmental
-  - Encourage self-reflection
-  - Provide actionable steps when possible
+🔹 If the query is complete:
 
-  4. Safety:
-  - Never recommend dangerous or illegal actions
-  - For mental health crises, suggest professional help
-  - Maintain appropriate boundaries
+Output: A one-word decision + a short 60-word explanation.
+🔹 If the query is incomplete:
 
-  5. Format:
-  - Use natural language, not robotic responses
-  - Break complex thoughts into digestible parts
-  - Use examples or analogies when helpful
+Output: A request for more details in straight points.
 
-  Begin by welcoming the user and asking how you can help with their life decision.
+After the user replies with the missing details, Rivoo provides the one-word verdict + 60-word explanation.
+🔹 Memory Feature:
+
+Rivoo remembers past conversations like ChatGPT, allowing users to make follow-up decisions without re-explaining their context.
+
+📌 Response Examples:
+✅ Complete Query Example:
+💬 "Shall I go take some rest or complete my app's subscription gateway settings? I need the app sent for testing ASAP, but I'm tired after driving for 3 hours. What should I do?"
+🔹 Rivoo's Response:
+Decision: Rest.
+Explanation: You’re exhausted, and mental clarity is crucial for important tasks. Rest now so you can work efficiently later. Rushing while tired may lead to mistakes, delaying the process even more. Take a short break, recharge, and then tackle the task with a fresh mind.
+
+✅ Incomplete Query Example:
+💬 "Should I increase my startup’s subscription price?"
+🔹 Rivoo's Response:
+"Please provide more details:
+
+Current price?
+
+Churn rate?
+
+User demand & revenue goal?
+I'll give the best one-word verdict."
+
+✅ After Receiving More Details:
+💬 "My current price is $10/week, churn is 5%, and I want to maximize profits."
+🔹 Rivoo's Response:
+Decision: Increase.
+Explanation: With a low churn rate and strong demand, increasing the price will likely boost revenue without losing too many subscribers. Test a small price hike first to measure user response, then adjust as needed. Higher pricing also increases perceived value, attracting premium customers.
+
+✅ Follow-Up Example (Using Memory):
+💬 "Rivoo, I took your advice and increased my price to $12/week. Churn is now at 6%. Should I keep it or lower it?"
+🔹 Rivoo's Response:
+Decision: Keep.
+Explanation: A slight increase in churn is expected, but if overall revenue is higher, it's worth keeping the new price. Monitor customer feedback and retention for a few more weeks before making further changes.
+
+🔑 Key Features of Rivoo:
+✅ Starts every chat with: "How can I help you with your decision today?"
+✅ If the query is incomplete, asks for missing details in bullet points.
+✅ Remembers previous conversations for context.
+✅ After receiving details, provides a one-word verdict + 60-word explanation.
+✅ Never reveals internal reasoning.
+✅ Never overwhelms users with excessive details.
+✅ Keeps responses friendly, human-like, and practical.
+
+This ensures Rivoo delivers fast, stress-free, and highly effective decision-making assistance!
+}
   `;
 
   useEffect(() => {
@@ -126,21 +169,38 @@ const VoiceAssistant = () => {
       );
 
       const aiText = res.data.choices[0].message.content;
+      
+      // For debugging
+      console.log("Raw API response:", aiText);
+      
       const cleanedText = cleanResponse(aiText);
-      setResponse(cleanedText);
+      console.log("After cleaning:", cleanedText);
+      
+      // Additional check to make sure nothing slips through
+      const finalText = cleanedText.includes("think") || 
+                        cleanedText.includes("reasoning") || 
+                        cleanedText.includes("internal") ? 
+                        cleanedText.split(/\n/).filter(line => 
+                          !line.toLowerCase().includes("think") && 
+                          !line.toLowerCase().includes("reasoning") &&
+                          !line.toLowerCase().includes("internal")
+                        ).join("\n") : 
+                        cleanedText;
+      
+      setResponse(finalText);
       
       setConversation(prev => {
         const newConv = [...prev];
         if (newConv[newConv.length - 1].role === "user") {
-          return [...newConv, { role: "assistant", content: cleanedText }];
+          return [...newConv, { role: "assistant", content: finalText }];
         }
-        return [...prev, { role: "assistant", content: cleanedText }];
+        return [...prev, { role: "assistant", content: finalText }];
       });
       
       setStatus("speaking");
       if (voiceMode) {
         speak({
-          text: cleanedText,
+          text: finalText,
           voice: selectedVoice,
           onEnd: () => {
             if (autoMode) {
@@ -215,7 +275,7 @@ const VoiceAssistant = () => {
     <div className="voice-assistant">
       <div className="assistant-header">
         <div className="assistant-logo">
-          <span className="logo-icon">RIVOO</span>
+          <span className="logo-icon">R</span>
           <h1>Life Decision Advisor</h1>
         </div>
         <p className="assistant-tagline">Gain clarity on life's tough choices with thoughtful guidance</p>
@@ -261,7 +321,7 @@ const VoiceAssistant = () => {
             {conversation.map((message, index) => (
               <div key={index} className={`message ${message.role}`}>
                 <div className="message-avatar">
-                  {message.role === "user" ? "You" : "RIVOO"}
+                  {message.role === "user" ? "You" : "R"}
                 </div>
                 <div className="message-bubble">
                   <p>{message.content}</p>
